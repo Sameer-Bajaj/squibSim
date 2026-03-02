@@ -10,8 +10,6 @@ function runNastran(bdfFile, nastranExe)
     if exist(f06File, 'file'), delete(f06File); end
 
     % Build the command. 
-    % Added 'batch=no' or similar keywords can sometimes help force blocking,
-    % but the system() call below is the primary driver.
     cmd = sprintf('"%s" "%s" out="%s" news=no scratch=no', nastranExe, bdfFile, fDir);
    
     fprintf('Running: %s\n', fName);
@@ -32,8 +30,7 @@ function runNastran(bdfFile, nastranExe)
     
     while elapsed < timeout
         if exist(f06File, 'file')
-            % Even if it exists, Nastran might still be writing to it.
-            % We try to open it with append access. If it fails, it's locked.
+            % check if nastran is writing to file actively
             fid = fopen(f06File, 'a');
             if fid ~= -1
                 fclose(fid);
@@ -47,4 +44,5 @@ function runNastran(bdfFile, nastranExe)
     end
 
     error('runNastran:timeout', 'Timed out waiting for %s to finish.', f06File);
+
 end
